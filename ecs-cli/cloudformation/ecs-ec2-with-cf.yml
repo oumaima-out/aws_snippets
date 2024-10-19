@@ -94,37 +94,37 @@ Resources:
       Path: /
       Roles: [ 'ecsInstanceRole' ]
   
-  ECSTaskDefinition:
-    Type: AWS::ECS::TaskDefinition
-    Properties:
-      Family: !Sub ${EnvironmentName}-task
-      NetworkMode: bridge
-      ContainerDefinitions:
-        - Name: exp-code-pipeline
-          Image: 676206935963.dkr.ecr.us-east-1.amazonaws.com/aws-ecs-docker/7d6f87a:latest  # You can replace this with your own container image
-          Cpu: 256
-          Memory: 512
-          Essential: true
-          PortMappings:
-            - ContainerPort: 3000
-              HostPort: 3000
-              Protocol: tcp
+  # ECSTaskDefinition:
+  #   Type: AWS::ECS::TaskDefinition
+  #   Properties:
+  #     Family: !Sub ${EnvironmentName}-task
+  #     NetworkMode: bridge
+  #     ContainerDefinitions:
+  #       - Name: exp-code-pipeline
+  #         Image: 676206935963.dkr.ecr.us-east-1.amazonaws.com/aws-ecs-docker/7d6f87a:latest  # You can replace this with your own container image
+  #         Cpu: 256
+  #         Memory: 512
+  #         Essential: true
+  #         PortMappings:
+  #           - ContainerPort: 3000
+  #             HostPort: 3000
+  #             Protocol: tcp
 
-  ECSService:
-    Type: AWS::ECS::Service
-    Properties:
-      ServiceName: !Sub ${EnvironmentName}-ecs-service
-      Cluster: !Ref ECSCluster
-      TaskDefinition: !Ref ECSTaskDefinition
-      DesiredCount: 1
-      LaunchType: EC2
-      NetworkConfiguration:
-        AwsvpcConfiguration:
-          Subnets:
-            - Fn::ImportValue: !Sub ${EnvironmentName}:PublicSubnetOne
-            - Fn::ImportValue: !Sub ${EnvironmentName}:PublicSubnetTwo
-          SecurityGroups:
-            - !Ref ContainerSecurityGroup
+  # ECSService:
+  #   Type: AWS::ECS::Service
+  #   Properties:
+  #     ServiceName: !Sub ${EnvironmentName}-ecs-service
+  #     Cluster: !Ref ECSCluster
+  #     TaskDefinition: !Ref ECSTaskDefinition
+  #     DesiredCount: 1
+  #     LaunchType: EC2
+  #     NetworkConfiguration:
+  #       AwsvpcConfiguration:
+  #         Subnets:
+  #           - Fn::ImportValue: !Sub ${EnvironmentName}:PublicSubnetOne
+  #           - Fn::ImportValue: !Sub ${EnvironmentName}:PublicSubnetTwo
+  #         SecurityGroups:
+  #           - !Ref ContainerSecurityGroup
 
 Outputs:
   ClusterName:
