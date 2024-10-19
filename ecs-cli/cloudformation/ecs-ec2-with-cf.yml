@@ -38,7 +38,6 @@ Resources:
       ClusterName: !Sub ${EnvironmentName}-ec2
 
   # A security group for the EC2 hosts that will run the containers.
-  # Rules are added based on what ingress you choose to add to the cluster.
   ContainerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -66,6 +65,7 @@ Resources:
     UpdatePolicy:
       AutoScalingReplacingUpdate:
         WillReplace: 'true'
+  
   ContainerInstancesLaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
     Properties:
@@ -83,6 +83,16 @@ Resources:
             echo ECS_CLUSTER=${ECSCluster} >> /etc/ecs/ecs.config
             yum install -y aws-cfn-bootstrap
             /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource ECSAutoScalingGroup --region ${AWS::Region}
+            # Vérifier si l'instance est enregistrée dans ECS
+            while true; do
+              if [[ $(aws ecs list-container-instances --cluster ${ECSCluster} --region ${AWS::Region} --query 'containerInstanceArns' --output text) ]]; then
+                echo "L'instance a été enregistrée avec succès dans ECS."
+                break
+              else
+                echo "En attente de l'enregistrement de l'instance dans ECS..."
+                sleep 10
+              fi
+            done
 
   EC2InstanceProfile:
     Type: AWS::IAM::InstanceProfile
@@ -96,4 +106,3 @@ Outputs:
     Value: !Ref 'ECSCluster'
     Export:
       Name: !Sub ${EnvironmentName}:ClusterName
-  
